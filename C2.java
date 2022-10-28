@@ -4,88 +4,64 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class C2 {
     public static void main(String[] args) throws Exception{
-        // Create a String[] to hold all the lines from the text file
+
         ArrayList<String> instructions = new ArrayList<String>();
         getInstruction(instructions);
 
-        int ins_len = getInsLen(instructions);
-        String[] ins_list = getInsList(ins_len);
-
-        // Create an int[] to specify the position of the line which contains "while"
-        int while_number = getWhilenum(ins_len, ins_list);
-        int[] while_list = new int[while_number];
-
-
-        // OOP
 
         ArrayList<Variable> Variables= new ArrayList<Variable>();
 
-        Variable x = new Variable("X");
-        Variable y = new Variable("Y");
-        Variable z = new Variable("Z");
-        Variable w = new Variable("W");
 
         for (int a = 0; a < instructions.size(); a++){
-            System.out.println(instructions.get(a));
-
-            if (instructions.get(a).contains("clear")){
-                String line = instructions.get(a);
-                Scanner scanner = new Scanner(line);
-                scanner.next();
-                String vid = scanner.next();
-                System.out.println(vid);
-                Variable variable = new Variable(vid);
-                Variables.add(variable);
+            String line = instructions.get(a);
+            if (line.contains("//")){
+                Comments(line);
             }
-
-        }
-
-        System.out.println(Variables);
-
-        /*
-        for(int a = 0; a < ins_len; a++){ // Carry out instructions one by one
-            // If a line contains "while", note the position which is the starting point of th loop
-            if (ins_list[a].contains("while")){
-                if(ins_list[a].contains("X")){
-                    while_list[0] = a;
-                }
-                else if (ins_list[a].contains("Y")){
-                    while_list[1] = a;
-                }
-                else if (ins_list[a].contains("W")){
-                    while_list[2] = a;
-                }
+            if (!line.contains(";")){
+                System.out.println("Invalid instruction detected");
+                break;
             }
-            // If a line contains "end", then need to separate if it's indented or not
-            else if (ins_list[a].contains("end") && !ins_list[a].contains("  end") && x.Getnumber() != 0){
-                a = while_list[0];
+            if (line.contains("clear")){
+                Clear(line, Variables);
             }
-            else if (ins_list[a].contains("   end")){
-                // If indented then read the instructions backwards to find the closet while command
-                for (int c = a; c > 0; c--){
-                    if (ins_list[c].contains("while")){
-                        if (ins_list[c].contains("Y") && y.Getnumber() != 0){
-                            a = while_list[1];
-                        }
-                        else if (ins_list[c]. contains("W") && w.Getnumber() != 0){
-                            a = while_list[2];
+            else if (line.contains("+") || line.contains("-") || line.contains("*") || line.contains("/")){
+                Operator(line, Variables);
+            }
+            else if (line.contains("incr")){
+                Incr(line, Variables);
+            }
+            else if (line.contains("decr")){
+                Decr(line, Variables);
+            }
+            else if (line.contains("end")) {
+                int index = line.indexOf("end");
+                for (int i = a; i > 0; i--){
+                    if (instructions.get(i).contains("while") && instructions.get(i).indexOf("while") == index){
+                        String line1 = instructions.get(i);
+                        Scanner scanner = new Scanner(line1);
+                        scanner.next();
+                        String operand = scanner.next();
+                        for (Variable variable : Variables){
+                            if (variable.id.contains(operand) && variable.num != 0){
+                                a = i;
+                            }
                         }
                         break;
                     }
                 }
             }
-            // Carry out the line if no special word is contained in the line
-            else {
-                Execution(ins_list[a], x, y, z, w);
-            }
+
+
+
+
+            Report(Variables);
+
         }
 
-         */
 
     }
 
@@ -94,109 +70,123 @@ public class C2 {
         File file = new File("/Users/dingsongyang/IdeaProjects/SpaceCadets/src/week3/BareBones.txt");
         FileReader freader = new FileReader(file);
         BufferedReader br = new BufferedReader(freader);
-        while(br.readLine() != null){
-            System.out.println(br.readLine());
-            instructions.add(br.readLine());
+        String line = br.readLine();
+        while(line != null){
+            instructions.add(line);
+            line = br.readLine();
         }
         return instructions;
     }
-    public static int getInsLen(ArrayList<String> instructions) throws Exception{
-        File file = new File("/Users/dingsongyang/IdeaProjects/SpaceCadets/src/week3/BareBones.txt");
-        FileReader freader = new FileReader(file);
-        BufferedReader br = new BufferedReader(freader);
-        int num_ins = 0;
-        while(br.readLine() != null){
-            num_ins++;
-        }
-        return num_ins;
-    }
-    public static String[] getInsList(int num_ins) throws Exception{
-        File file = new File("/Users/dingsongyang/IdeaProjects/SpaceCadets/src/week3/BareBones.txt");
-        FileReader freader = new FileReader(file);
-        BufferedReader br = new BufferedReader(freader);
 
-        String[] instruction = new String[num_ins];
-        for (int i = 0; i < num_ins; i++){
-
-            instruction[i] = br.readLine();
-        }
-        return instruction;
-    }
-    public static int getWhilenum(int ins_len, String[] ins_list){
-        int count = 0;
-        for (int i = 0; i < ins_len; i++){
-            if (ins_list[i].contains("while")){
-                count++;
+    public static void Clear(String line, ArrayList<Variable> Variables){
+        Scanner scanner = new Scanner(line);
+        scanner.next();
+        String vid = scanner.next();
+        Variable variable = new Variable(vid.replace(";", ""));
+        variable.Setnumber();
+        boolean flag = true;
+        for (Variable variable1 : Variables){
+            if (variable1.id.contains(vid.replace(";", ""))){
+                flag = false;
             }
         }
-        return count;
+        if (flag) {
+            Variables.add(variable);
+        }
+
     }
-    public static void Execution(String line, Variable x, Variable y, Variable z, Variable w){
+    public static void Incr(String line, ArrayList<Variable> Variables){
         Scanner scanner = new Scanner(line);
-        String opcode = scanner.next();
-        String operand = scanner.next();
-
-        if(opcode.contains("clear")){
-            Clear(operand, x, y, z, w);
-        }
-        else if(opcode.contains(("incr"))){
-            Incr(operand, x, y, z, w);
-        }
-        else if(opcode.contains(("decr"))){
-            Decr(operand, x, y, z, w);
-        }
-
-        Report(x, y, z, w);
-
-    }
-    public static void Clear(String operand, Variable x, Variable y, Variable z, Variable w){
-        if (operand.contains("X")) {
-            x.Setnumber();
-        }
-        else if (operand.contains("Y")){
-            y.Setnumber();
-        }
-        else if (operand.contains("Z")){
-            z.Setnumber();
-        }
-        else if (operand.contains("W")){
-            w.Setnumber();
+        scanner.next();
+        String vid = scanner.next().replace(";", "");
+        for (Variable variable : Variables){
+            if (variable.id.contains(vid)){
+                variable.Incr();
+            }
         }
     }
-    public static void Incr(String operand, Variable x, Variable y, Variable z, Variable w){
-        if (operand.contains("X")) {
-            x.Incr();
-        }
-        else if (operand.contains("Y")){
-            y.Incr();
-        }
-        else if (operand.contains("Z")){
-            z.Incr();
-        }
-        else if (operand.contains("W")) {
-            w.Incr();
-        }
-    }
-    public static void Decr(String operand, Variable x, Variable y, Variable z, Variable w){
-        if (operand.contains("X")) {
-            x.Decr();
-        }
-        else if (operand.contains("Y")){
-            y.Decr();
-        }
-        else if (operand.contains("Z")){
-            z.Decr();
-        }
-        else if (operand.contains("W")) {
-            w.Decr();
+    public static void Decr(String line, ArrayList<Variable> Variables){
+        Scanner scanner = new Scanner(line);
+        scanner.next();
+        String vid = scanner.next().replace(";", "");
+        for (Variable variable : Variables){
+            if (variable.id.contains(vid)){
+                variable.Decr();
+            }
         }
     }
 
-    public static void Report(Variable x, Variable y, Variable z, Variable w){
+    public static void Comments(String line){
+        int index = line.indexOf("//");
+        String rest_line = line.substring(index+2);
+        System.out.println("Comment: " + rest_line.trim());
+    }
+
+    public static void Operator(String line, ArrayList<Variable> Variables){
+        Scanner scanner = new Scanner(line.trim().replace(";", ""));
+        String variable1 = scanner.next();
+        scanner.next();
+        String variable2 = scanner.next();
+        String operator = scanner.next();
+        String variable3 = scanner.next();
+        Variable v1 = new Variable("");
+        int v2 = 0;
+        int v3 = 0;
+
+        for (Variable variable : Variables){
+            if ( variable.id.contains(variable1)){
+                v1 = variable;
+            }
+            if (variable.id.contains(variable2)){
+                v2 = variable.Getnumber();
+            }
+            if ( variable.id.contains(variable3)){
+                v3 = variable.Getnumber();
+            }
+        }
+        if (operator.contains("+")){
+            v1.Plus(v2, v3);
+            for (Variable variable : Variables) {
+                if (variable.id.contains(variable1)) {
+                    variable.num = v1.num;
+                }
+            }
+        }
+        else if (operator.contains("-")){
+            v1.Minus(v2, v3);
+            for (Variable variable : Variables) {
+                if (variable.id.contains(variable1)) {
+                    variable.num = v1.num;
+                }
+            }
+        }
+        else if (operator.contains("*")){
+            v1.Multiply(v2, v3);
+            for (Variable variable : Variables) {
+                if (variable.id.contains(variable1)) {
+                    variable.num = v1.num;
+                }
+            }
+        }
+        else if (operator.contains("/")){
+            v1.Divide(v2, v3);
+            for (Variable variable : Variables) {
+                if (variable.id.contains(variable1)) {
+                    variable.num = v1.num;
+                }
+            }
+        }
+
+
+
+    }
+
+
+
+    public static void Report(ArrayList<Variable> Variables){
         System.out.println("*********************");
-        System.out.println("Variable X = " + x.Getnumber());
-        System.out.println("Variable Y = " + y.Getnumber());
-        System.out.println("Variable Z = " + z.Getnumber());
-        System.out.println("Variable W = " + w.Getnumber());
+        for (Variable variable : Variables){
+            System.out.println(variable.id + " = " + variable.num);
+        }
     }
 }

@@ -18,5 +18,24 @@ public class Variable {
         num--;
     }
 
+    public void Plus(int a, int b){
+        num = a + b;
+    }
+
+    public void Minus(int a, int b){
+        num = a - b;
+    }
+
+    public void Multiply(int a, int b){
+        num = a * b;
+    }
+
+    public void Divide(int a, int b){
+        num = a / b;
+    }
+
+
+
+
 
 }
