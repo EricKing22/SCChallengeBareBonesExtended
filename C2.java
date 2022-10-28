@@ -8,14 +8,14 @@ import java.util.Scanner;
 
 public class C2 {
     public static void main(String[] args) throws Exception{
-
+        // Import all instructions to an arraylist line by line
         ArrayList<String> instructions = new ArrayList<String>();
         getInstruction(instructions);
 
 
         ArrayList<Variable> Variables= new ArrayList<Variable>();
 
-
+        // Go through each line in the arraylist
         for (int a = 0; a < instructions.size(); a++){
             String line = instructions.get(a);
             if (line.contains("//")){
@@ -39,6 +39,7 @@ public class C2 {
             }
             else if (line.contains("end")) {
                 int index = line.indexOf("end");
+                // Go backwards to find the nearest while that has the same indentation with the end
                 for (int i = a; i > 0; i--){
                     if (instructions.get(i).contains("while") && instructions.get(i).indexOf("while") == index){
                         String line1 = instructions.get(i);
@@ -46,6 +47,7 @@ public class C2 {
                         scanner.next();
                         String operand = scanner.next();
                         for (Variable variable : Variables){
+                            // Set the pointer back to the while position if the variable isn't 0
                             if (variable.id.contains(operand) && variable.num != 0){
                                 a = i;
                             }
@@ -54,20 +56,13 @@ public class C2 {
                     }
                 }
             }
-
-
-
-
             Report(Variables);
-
         }
-
-
     }
 
 
     public static ArrayList<String> getInstruction(ArrayList<String> instructions) throws Exception{
-        File file = new File("/Users/dingsongyang/IdeaProjects/SpaceCadets/src/week3/BareBones.txt");
+        File file = new File("C:\\Users\\sd8g22\\IdeaProjects\\untitled\\src\\BareBones.txt");
         FileReader freader = new FileReader(file);
         BufferedReader br = new BufferedReader(freader);
         String line = br.readLine();
