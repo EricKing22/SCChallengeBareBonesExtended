@@ -62,7 +62,7 @@ public class C2 {
 
 
     public static ArrayList<String> getInstruction(ArrayList<String> instructions) throws Exception{
-        File file = new File("C:\\Users\\sd8g22\\IdeaProjects\\untitled\\src\\BareBones.txt");
+        File file = new File("...\\BareBones.txt");
         FileReader freader = new FileReader(file);
         BufferedReader br = new BufferedReader(freader);
         String line = br.readLine();
