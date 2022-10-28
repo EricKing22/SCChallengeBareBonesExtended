@@ -127,7 +127,7 @@ public class C2 {
         Variable v1 = new Variable("");
         int v2 = 0;
         int v3 = 0;
-
+        // Go through the Variablie list to give values
         for (Variable variable : Variables){
             if ( variable.id.contains(variable1)){
                 v1 = variable;
@@ -139,6 +139,7 @@ public class C2 {
                 v3 = variable.Getnumber();
             }
         }
+        // Change value in Variable 1
         if (operator.contains("+")){
             v1.Plus(v2, v3);
             for (Variable variable : Variables) {
@@ -178,7 +179,7 @@ public class C2 {
     }
 
 
-
+    // Go thorugh the variable list to print out value for each
     public static void Report(ArrayList<Variable> Variables){
         System.out.println("*********************");
         for (Variable variable : Variables){
