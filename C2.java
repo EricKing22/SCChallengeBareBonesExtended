@@ -163,6 +163,7 @@ public class C2 {
                 }
             }
         }
+        // Only does integer division
         else if (operator.contains("/")){
             v1.Divide(v2, v3);
             for (Variable variable : Variables) {
